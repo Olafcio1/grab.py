@@ -46,8 +46,19 @@ with open(os.path.dirname(__file__) + "/global.py", "rb") as f:
 with open(site.getsitepackages()[-1] + "/grab.py", "wb") as f:
   f.write(addition)
 
-with open(site.getsitepackages()[-1] + "/sitecustomize.py", "ab") as f:
-  f.write(b"\n\n# grab.py\n")
+with open(site.getsitepackages()[-1] + "/sitecustomize.py", "rb") as f:
+  content = f.read()
+
+sep = b"\n# grab.py\n"
+
+if sep in content:
+  seploc = content.index(sep)
+  content = content[:seploc].rstrip() + content[seploc + len(sep):].partition(b"\n")[2]
+
+with open(site.getsitepackages()[-1] + "/sitecustomize.py", "wb") as f:
+  f.write(content)
+  f.write(b"\n")
+  f.write(sep)
   f.write(b"from grab import Ignore, Grab; import builtins; builtins.Ignore = Ignore; builtins.Grab = Grab")
   f.write(b"\n")
 #endregion
