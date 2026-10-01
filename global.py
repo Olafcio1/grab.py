@@ -72,3 +72,21 @@ def Grab(*, repository: str, commit: str) -> Annotation:
     return wrap
 
   return gen
+
+def getmodulename(path: str) -> str:
+  import os
+
+  grabsetup = path + "/__grab__.py"
+  if os.path.isfile(grabsetup):
+    with open(grabsetup) as f:
+      script = f.read()
+
+    store = {}
+    exec(compile(script, grabsetup, 'exec'), {}, store)
+
+    if "__module__" not in store:
+      return path
+    elif not isinstance(store['__module__'], dict) or 'name' not in store['__module__']:
+      return path
+    else:
+      return store['__module__']['name']
