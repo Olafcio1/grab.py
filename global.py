@@ -19,7 +19,10 @@ def Grab(*, repository: str, commit: str) -> Annotation:
       # importing deferred as they may break in global site
       import os
       import sys
-      from urllib.request import urldownload
+
+      from io import BytesIO
+      from zipfile import ZipFile
+      from urllib.request import urlopen
 
       modules = os.path.abspath(".venv/modules")
       if modules not in sys.path:
@@ -33,8 +36,13 @@ def Grab(*, repository: str, commit: str) -> Annotation:
 
         http_response = urlopen(f"https://github.com/{repository}/archive/%s.zip" % commit)
 
-        zipfile = ZipFile(BytesIO(http_response.read()))
-        zipfile.extractall(path=dest)
+        with ZipFile(BytesIO(http_response.read())) as zipfile:
+          for file in zipfile.infolist():
+            if '/' in file.filename:
+              file.filename = file.filename.partition("/")[2]
+
+              if file.filename:
+                zipfile.extract(file, path=dest)
 
         grabsetup = dest + "/__grab__.py"
         if os.path.isfile(grabsetup):
@@ -51,7 +59,12 @@ def Grab(*, repository: str, commit: str) -> Annotation:
           else:
             module = store['__module__']['name']
 
-          os.rename(dest, modules + "/" + module)
+          if os.name == 'nt':
+            import subprocess
+            # 'C:\\Windows\\System32\cmd.exe', '/c', 
+            subprocess.run(['mklink', '/J', (modules + "/" + module).replace("/", "\\"), dest.replace("/", "\\")], shell=True, stdout=subprocess.DEVNULL)
+          else:
+            os.link(dest, modules + "/" + module)
 
         print(f"[Grab] Provided module '{module}'")
 
