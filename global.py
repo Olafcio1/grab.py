@@ -51,6 +51,8 @@ def Grab(*, repository: str, commit: str) -> Annotation:
           else:
             module = store['__module__']['name']
 
+          os.rename(dest, modules + "/" + module)
+
         print(f"[Grab] Provided module '{module}'")
 
     if func.__name__ == 'install' and not hasattr(func, '__Grab_ignore__'):
