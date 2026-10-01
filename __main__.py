@@ -1,10 +1,9 @@
 import os
 import sys
 import subprocess
+import importlib.util
 
-try:
-  import colorama
-except:
+if importlib.util.find_spec('colorama') is None:
   try:
     if not input("[!] grab.py requires 'colorama' (from pip). Install (y/n)? ").startswith('y'):
       raise Exception()
@@ -13,6 +12,8 @@ except:
     sys.exit(1)
 
   subprocess.run([sys.executable, "-m", "pip", "--no-input", "--no-color", "--no-clean", "install", "colorama"], stdout=subprocess.DEVNULL)
+
+import colorama
 
 colorama.just_fix_windows_console()
 
