@@ -48,6 +48,6 @@ with open(site.getsitepackages()[-1] + "/grab.py", "wb") as f:
 
 with open(site.getsitepackages()[-1] + "/sitecustomize.py", "ab") as f:
   f.write(b"\n\n# grab.py\n")
-  f.write(b"import grab")
+  f.write(b"from grab import Ignore, Grab; import builtins; builtins.Ignore = Ignore; builtins.Grab = Grab")
   f.write(b"\n")
 #endregion
