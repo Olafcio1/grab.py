@@ -90,3 +90,40 @@ def getmodulename(path: str) -> str:
       return path
     else:
       return store['__module__']['name']
+
+from typing import Any
+
+def shell(globals: dict[str, Any]) -> None:
+  import traceback
+
+  locals = {}
+  globals = globals.copy()
+
+  while True:
+    try:
+      try:
+        text = input('>>> ')
+      except ValueError:
+        break
+
+      try:
+        val = eval(compile(text, '<input>', 'eval'), globals, locals)
+      except:
+        broken = True
+      else:
+        broken = False
+
+      if broken:
+        val = exec(compile(text, '<input>', 'exec'), globals, locals)
+
+      if val is not None:
+        print(val)
+    except KeyboardInterrupt:
+      print("\nKeyboardInterrupt")
+    except SystemExit:
+      break
+    except BaseException as e:
+      exc = traceback.format_exception(e)
+
+      print(exc[0], end='')
+      print("".join(exc[2:]), end='')
