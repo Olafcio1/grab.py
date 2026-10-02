@@ -47,8 +47,11 @@ with open(os.path.dirname(__file__) + "/global.py", "rb") as f:
 with open(site.getsitepackages()[-1] + "/grab.py", "wb") as f:
   f.write(addition)
 
-with open(site.getsitepackages()[-1] + "/sitecustomize.py", "rb") as f:
-  content = f.read()
+try:
+  with open(site.getsitepackages()[-1] + "/sitecustomize.py", "rb") as f:
+    content = f.read()
+except FileNotFoundError:
+  content = b""
 
 sep = b"\n# grab.py\n"
 
